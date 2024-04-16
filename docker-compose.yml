@@ -40,9 +40,9 @@ services:
       - ./mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: laraveldb
-      MYSQL_USER: root
-      MYSQL_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: laraveluser
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
     networks:
       - laravel
 
