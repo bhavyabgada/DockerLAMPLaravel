@@ -14,13 +14,39 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+        $includeSSN = rand(0, 1);  // Randomly decide to include SSN
+
         return [
-            'name' => $this->faker->name(),
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'social_security_number' => $includeSSN ? $this->generateValidSSN() : null,
+            'role' => 'user',
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Generate a valid SSN that does not include problematic patterns.
+     *
+     * @return string
+     */
+    private function generateValidSSN()
+    {
+        do {
+            $area = $this->faker->numberBetween(1, 899);
+            if ($area == 666) {
+                $area = $this->faker->numberBetween(1, 665);
+            }
+
+            $group = $this->faker->numberBetween(1, 99);
+            $serial = $this->faker->numberBetween(1, 9999);
+
+            $ssn = sprintf('%03d-%02d-%04d', $area, $group, $serial);
+        } while (in_array($ssn, ['078-05-1120']));  // This SSN is publicly invalid.
+
+        return $ssn;
     }
 
     /**
