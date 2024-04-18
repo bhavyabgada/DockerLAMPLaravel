@@ -172,14 +172,6 @@ These options allow administrative users to manage account statuses effectively.
 
 If you encounter issues with logging in or managing users, ensure the Docker containers are running properly and the database migrations were executed correctly as detailed in the installation steps.
 
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
-
 ## Authors
 
 * **Bhavya Bipin Gada**
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
