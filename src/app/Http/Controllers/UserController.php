@@ -71,10 +71,10 @@ class UserController extends Controller
         $user->social_security_number = $data['social_security_number'];
         $user->save();
 
-        // If the user is an admin, redirect to the users index page (TEST FAIL)
-        if (auth()->user()->role == 'admin') {
+        if (auth()->check() && auth()->user()->role == 'admin') {
             return redirect()->route('users.index')->with('status', 'User created successfully!');
-        }       
+        }
+
         return redirect()->route('home')->with('status', 'User created successfully! You need to log in to make them active/inactive.');
     }
 }
