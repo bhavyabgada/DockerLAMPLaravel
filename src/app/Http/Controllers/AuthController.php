@@ -23,13 +23,9 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        //password is saved by Hash::make($validatedData['password'])  so before auth:attempt, we need to hash the password
-        $credentials['password'] = Hash::make($credentials['password']);
-
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return Success;
-            // return redirect()->intended('/users');  // Or to a route of your choice
+            return redirect()->intended('/users');  
         }
 
         return back()->withErrors([
@@ -43,7 +39,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/');  // Or to the route you prefer
+        return redirect('/');  
     }
 
     // Show the registration form
@@ -64,10 +60,11 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'],
+            'role' => 'admin',
         ]);
 
         Auth::login($user);
-        return redirect('/');  // Or to a route of your choice
+        return redirect('/users');  
     }
 }

@@ -7,15 +7,15 @@ use App\Models\User;
 
 class UserController extends Controller
 {
-    // /**
-    //  * Create a new controller instance with auth middleware
-    //  *
-    //  * @return void
-    //  */
-    // public function __construct()
-    // {
-    //     $this->middleware('auth');
-    // }
+    /**
+     * Create a new controller instance with auth middleware
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     
     /**
      * Display a listing of the resource.
@@ -24,11 +24,14 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $sortBy = $request->get('sort_by', 'id');
-        $sortOrder = $request->get('sort_order', 'asc');
-
-        $users = User::orderBy($sortBy, $sortOrder)->paginate(10);  // Using pagination
-        return view('users.index', compact('users'));
+        $sortBy = $request->query('sort', 'id');
+        $sortOrder = $request->query('direction', 'asc') === 'asc' ? 'asc' : 'desc';
+    
+        $users = User::where('role', '<>', 'admin')
+                     ->orderBy($sortBy, $sortOrder)
+                     ->paginate(5);
+    
+        return view('users.index', compact('users', 'sortBy', 'sortOrder'));
     }
 
     /**
@@ -44,70 +47,33 @@ class UserController extends Controller
 
         return redirect()->route('users.index')->with('status', 'User status updated successfully!');
     }
-
+    
     /**
-     * Show the form for creating a new resource.
+     * Accept the custom request of firstname lastname email and ssn and store it in the database
      *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
-        //
-    }
+        $data = $request->validate([
+            'first_name' => 'required|max:255',
+            'last_name' => 'required|max:255',
+            'email' => 'required|email|unique:users',
+            'social_security_number' => 'required|digits:9',
+        ]);
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
+        $user = new User();
+        $user->first_name = $data['first_name'];
+        $user->last_name = $data['last_name'];
+        $user->email = $data['email'];
+        $user->social_security_number = $data['social_security_number'];
+        $user->save();
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+        // If the user is an admin, redirect to the users index page (TEST FAIL)
+        if (auth()->user()->role == 'admin') {
+            return redirect()->route('users.index')->with('status', 'User created successfully!');
+        }       
+        return redirect()->route('home')->with('status', 'User created successfully! You need to log in to make them active/inactive.');
     }
 }

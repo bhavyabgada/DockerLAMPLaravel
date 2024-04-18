@@ -17,7 +17,7 @@ use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('home');
 
 // Authentication Routes...
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -28,5 +28,6 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('register', [AuthController::class, 'showRegistrationForm'])->name('register');
 Route::post('register', [AuthController::class, 'register']);
 
-Route::resource('users', 'App\Http\Controllers\UserController');
-Route::post('/users/{user}/toggle', 'UserController@toggleActive')->name('users.toggle');
+Route::resource('users', UserController::class);
+Route::post('/users/{user}/toggle', [UserController::class, 'toggleActive'])->name('users.toggle');
+Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
